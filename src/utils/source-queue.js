@@ -5,17 +5,21 @@ let createSource;
 let queuedSources;
 let supportsWasm = false;
 
-const queue = throttle(() => {
+async function dispatchNewSources() {
   if (!newSources || !createSource) {
     return;
   }
-  newSources(
+
+  await newSources(
     queuedSources.map(source => {
       return createSource(source, { supportsWasm });
     })
   );
+
   queuedSources = [];
-}, 100);
+}
+
+const queue = throttle(dispatchNewSources, 100);
 
 export default {
   initialize: options => {
